@@ -16,6 +16,6 @@ class Logic {
   }
 
   void reset() {
-    CountData _countData = CountData(count: 0, countUp: 0, countDown: 0);
+    _countData = _countData.copyWith(count: 0, countUp: 0, countDown: 0);
   }
 }

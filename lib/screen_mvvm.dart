@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'models/data/count_data.dart';
 import 'models/provider_model.dart';
+import 'view_model.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -19,86 +20,48 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends ConsumerStatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
+  @override
+  ConsumerState<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends ConsumerState<MyHomePage> {
+  ViewModel _viewModel = ViewModel();
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(
     BuildContext context,
   ) {
     return Scaffold(
-      appBar: AppBar(
-        title: Consumer(
-          builder: (BuildContext context, WidgetRef ref, Widget? child) => Text(
+        appBar: AppBar(
+          title: Text(
             ref.watch(titleProvider),
           ),
         ),
-      ),
-      body: Center(
-        child: Consumer(
-          builder: (BuildContext context, WidgetRef ref, Widget? child) =>
-              Column(
+        body: Center(
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text(ref.watch(textProvider)),
               Text(
-                ref.watch(countDataProvider).count.toString(), //文字列に変換
+                ref.watch(countProvider).toString(), //文字列に変換
                 style: Theme.of(context).textTheme.headline4,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  FloatingActionButton(
-                    onPressed: () {
-                      CountData countData = ref.read(countDataProvider);
-                      ref.read(countDataProvider.state).state = ref
-                          .read(countDataProvider)
-                          .copyWith(
-                              count: countData.count + 1,
-                              countUp: countData.countUp + 1);
-                    },
-                    child: const Icon(CupertinoIcons.plus),
-                  ),
-                  FloatingActionButton(
-                    onPressed: () {
-                      CountData countData = ref.read(countDataProvider);
-                      ref.read(countDataProvider.state).state = ref
-                          .read(countDataProvider)
-                          .copyWith(
-                              count: countData.count - 1,
-                              countDown: countData.countDown + 1);
-                    },
-                    child: const Icon(CupertinoIcons.minus),
-                  )
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Text(ref
-                      .watch(countDataProvider.select((value) => value.countUp))
-                      .toString()),
-                  Text(ref
-                      .watch(
-                          countDataProvider.select((value) => value.countDown))
-                      .toString()),
-                ],
               ),
             ],
           ),
         ),
-      ),
-      floatingActionButton: Consumer(
-          builder: (BuildContext context, WidgetRef ref, Widget? child) {
-        return FloatingActionButton(
-          onPressed: () {
-            ref.read(countDataProvider.state).state =
-                const CountData(count: 0, countUp: 0, countDown: 0);
-          },
-          child: const Icon(Icons.refresh),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => ref.read(countProvider.state).state++,
+          //readにすることによって、無駄なrebuildを防ぐ
+          tooltip: 'Increment',
+          child: const Icon(Icons.add),
+        )
+        //Consumerにすることによって無駄なrebuildをなくしてくれる
         );
-      }),
-      //Consumerにすることによって無駄なrebuildをなくしてくれる
-    );
   }
 }

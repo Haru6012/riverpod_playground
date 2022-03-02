@@ -1,7 +1,7 @@
 import 'data/count_data.dart';
 
 class Logic {
-  CountData _countData = CountData(count: 0, countUp: 0, countDown: 0);
+  CountData _countData = const CountData(count: 0, countUp: 0, countDown: 0);
 
   get countData => _countData;
 

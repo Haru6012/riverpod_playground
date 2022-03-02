@@ -38,30 +38,78 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
     BuildContext context,
   ) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(
+      appBar: AppBar(
+        title: Consumer(
+          builder: (BuildContext context, WidgetRef ref, Widget? child) => Text(
             ref.watch(titleProvider),
           ),
         ),
-        body: Center(
-          child: Column(
+      ),
+      body: Center(
+        child: Consumer(
+          builder: (BuildContext context, WidgetRef ref, Widget? child) =>
+              Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text(ref.watch(textProvider)),
               Text(
-                ref.watch(countProvider).toString(), //文字列に変換
+                ref.watch(countDataProvider).count.toString(), //文字列に変換
                 style: Theme.of(context).textTheme.headline4,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  FloatingActionButton(
+                    onPressed: () {
+                      CountData countData = ref.read(countDataProvider);
+                      ref.read(countDataProvider.state).state = ref
+                          .read(countDataProvider)
+                          .copyWith(
+                              count: countData.count + 1,
+                              countUp: countData.countUp + 1);
+                    },
+                    child: const Icon(CupertinoIcons.plus),
+                  ),
+                  FloatingActionButton(
+                    onPressed: () {
+                      CountData countData = ref.read(countDataProvider);
+                      ref.read(countDataProvider.state).state = ref
+                          .read(countDataProvider)
+                          .copyWith(
+                              count: countData.count - 1,
+                              countDown: countData.countDown + 1);
+                    },
+                    child: const Icon(CupertinoIcons.minus),
+                  )
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Text(ref
+                      .watch(countDataProvider.select((value) => value.countUp))
+                      .toString()),
+                  Text(ref
+                      .watch(
+                          countDataProvider.select((value) => value.countDown))
+                      .toString()),
+                ],
               ),
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => ref.read(countProvider.state).state++,
-          //readにすることによって、無駄なrebuildを防ぐ
-          tooltip: 'Increment',
-          child: const Icon(Icons.add),
-        )
-        //Consumerにすることによって無駄なrebuildをなくしてくれる
+      ),
+      floatingActionButton: Consumer(
+          builder: (BuildContext context, WidgetRef ref, Widget? child) {
+        return FloatingActionButton(
+          onPressed: () {
+            ref.read(countDataProvider.state).state =
+                const CountData(count: 0, countUp: 0, countDown: 0);
+          },
+          child: const Icon(Icons.refresh),
         );
+      }),
+      //Consumerにすることによって無駄なrebuildをなくしてくれる
+    );
   }
 }

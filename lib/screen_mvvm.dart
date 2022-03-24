@@ -31,6 +31,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
   @override
   void initState() {
     super.initState();
+
+    _viewModel.setRef(ref);
   }
 
   @override
@@ -53,7 +55,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
             children: <Widget>[
               Text(ref.watch(textProvider)),
               Text(
-                ref.watch(countDataProvider).count.toString(), //文字列に変換
+                _viewModel.count,
+                //viewModelを作ることで簡単にアクセスすることができる
                 style: Theme.of(context).textTheme.headline4,
               ),
               Row(
@@ -61,12 +64,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
                 children: [
                   FloatingActionButton(
                     onPressed: () {
-                      CountData countData = ref.read(countDataProvider);
-                      ref.read(countDataProvider.state).state = ref
-                          .read(countDataProvider)
-                          .copyWith(
-                              count: countData.count + 1,
-                              countUp: countData.countUp + 1);
+                      _viewModel.onIncrease();
                     },
                     child: const Icon(CupertinoIcons.plus),
                   ),
@@ -86,13 +84,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Text(ref
-                      .watch(countDataProvider.select((value) => value.countUp))
-                      .toString()),
-                  Text(ref
-                      .watch(
-                          countDataProvider.select((value) => value.countDown))
-                      .toString()),
+                  Text(_viewModel.coutUp),
+                  Text(_viewModel.countDown),
                 ],
               ),
             ],
@@ -103,8 +96,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
           builder: (BuildContext context, WidgetRef ref, Widget? child) {
         return FloatingActionButton(
           onPressed: () {
-            ref.read(countDataProvider.state).state =
-                const CountData(count: 0, countUp: 0, countDown: 0);
+            _viewModel.onReset();
           },
           child: const Icon(Icons.refresh),
         );

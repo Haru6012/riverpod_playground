@@ -16,6 +16,7 @@ dependencies:
   flutter_hooks: ^0.18.2
   hooks_riverpod: ^2.0.0-dev.0
   freezed_annotation:
+  animated_text_kit: ^4.2.1
 
   # Setting
   app_settings: ^4.1.1

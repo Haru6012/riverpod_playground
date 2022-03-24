@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'models/data/count_data.dart';
 import 'models/provider_model.dart';
+import 'view_model.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -19,8 +20,20 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends ConsumerStatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
+  @override
+  ConsumerState<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends ConsumerState<MyHomePage> {
+  ViewModel _viewModel = ViewModel();
+  @override
+  void initState() {
+    super.initState();
+
+    _viewModel.setRef(ref);
+  }
 
   @override
   Widget build(
@@ -42,7 +55,8 @@ class MyHomePage extends StatelessWidget {
             children: <Widget>[
               Text(ref.watch(textProvider)),
               Text(
-                ref.watch(countDataProvider).count.toString(), //文字列に変換
+                _viewModel.count,
+                //viewModelを作ることで簡単にアクセスすることができる
                 style: Theme.of(context).textTheme.headline4,
               ),
               Row(
@@ -50,12 +64,7 @@ class MyHomePage extends StatelessWidget {
                 children: [
                   FloatingActionButton(
                     onPressed: () {
-                      CountData countData = ref.read(countDataProvider);
-                      ref.read(countDataProvider.state).state = ref
-                          .read(countDataProvider)
-                          .copyWith(
-                              count: countData.count + 1,
-                              countUp: countData.countUp + 1);
+                      _viewModel.onIncrease();
                     },
                     child: const Icon(CupertinoIcons.plus),
                   ),
@@ -75,13 +84,8 @@ class MyHomePage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Text(ref
-                      .watch(countDataProvider.select((value) => value.countUp))
-                      .toString()),
-                  Text(ref
-                      .watch(
-                          countDataProvider.select((value) => value.countDown))
-                      .toString()),
+                  Text(_viewModel.coutUp),
+                  Text(_viewModel.countDown),
                 ],
               ),
             ],
@@ -92,8 +96,7 @@ class MyHomePage extends StatelessWidget {
           builder: (BuildContext context, WidgetRef ref, Widget? child) {
         return FloatingActionButton(
           onPressed: () {
-            ref.read(countDataProvider.state).state =
-                const CountData(count: 0, countUp: 0, countDown: 0);
+            _viewModel.onReset();
           },
           child: const Icon(Icons.refresh),
         );
